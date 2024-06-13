@@ -11,7 +11,7 @@
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    min-width: 200px;
+    /* min-width: 200;   */
     max-width: 100vw;
     position: relative;
     overflow: hidden; 
@@ -27,23 +27,29 @@
     background-image: url('../assets/College3.jpeg');
     background-position: center;
     background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: auto;
+    height: 100%;
+    width: 100%;
     background-size: cover;
     filter: blur(3px);
     z-index: 1;
-}
-
-.Container {
+    }
+    
+    .Container {
+    filter: drop-shadow(10px 10px 5px rgba(0, 0, 0, 0.5));
     min-width: 200px;
     max-width: 100vw;
     align-items: center;
     justify-content: center;
     background-color: hsla(33, 78%, 91%, 0.658);
     display: flex;
-    height: 55vh;
+    height: auto;
     width: 400px;
     flex-direction: column;
     outline: none;
-    padding: 100px;
+    padding: 50px;
+    margin: 20px;
     z-index: 1; 
 }
 
@@ -63,7 +69,7 @@
     pointer-events: none;
     transition: .5s;
     color: hsla(0, 0%, 0%, 0.774);
-  
+ 
 }
 
 .input-group input {
@@ -84,7 +90,8 @@
     top: 0;
     font-size: 12px;
     color: hsla(0, 0%, 0%, 0.774);
-    background: hsla(33, 78%, 91%, 0.26);
+    /* background: hsla(33, 78%, 91%, 0.26); */
+    
 }
 
 .LoginButton {
@@ -94,85 +101,50 @@
   justify-content: center;
   margin: 10px;
   padding: 10px;
+  margin-left: 25px;
   width: 80%;
-  background-color: #6366F1;
   color: white;
-  margin-left: 35px;
-  margin-top: 55px;
+  margin-top: 60px;
+  background-color: rgba(63, 63, 190, 0.966);
   border-radius: 5px;
   border: none;
-}
-
-.LoginButton:hover {
-    background-color: rgba(63, 63, 190, 0.966);
+  }
+  
+  .LoginButton:hover {
+    background-color: #395886;
 }
 
 .ForgotPass {
     display: flex;
-    flex-direction: row;
     justify-content: end;
     text-decoration: none;
     color: black;
     margin-top: 20px;
     font-size: small;
+    /* margin-left:100px ; */
+    text-decoration: none;
+    
+}
+.Forgot a{
+ margin-top: 50px;
 }
 
+.account a{
+    /* text-decoration: none; */
+    color: #000;
+    font-weight: bold;
+
+}
 .Noacc {
     display: flex;
     margin-top: 20px;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    margin-right: 100;
+    font-size: 15px;
+    text-decoration: none;
+}
+ 
+.Textfield{
+    margin-right: 15px;
+
 }
 
-.Click {
-    color: black;
-    font-weight: bold;
-}
-@media (min-width: 576px) {
-  .Container {
-      max-width: 500px;
-      padding: 60px 40px;
-  }
-
-  .input-group input {
-      height: 50px;
-  }
-
-  .LoginButton {
-      padding: 15px;
-      width: 80%;
-      font-size: 18px;
-  }
-}
-
-@media (min-width: 768px) {
-  .Container {
-      max-width: 600px;
-      padding: 80px 60px;
-  }
-
-  .LoginButton {
-      width: 70%;
-  }
-}
-
-@media (min-width: 992px) {
-  .Container {
-      max-width: 700px;
-      padding: 100px 80px;
-  }
-
-  .LoginButton {
-      width: 60%;
-  }
-}
-
-@media (min-width: 1200px) {
-  .Container {
-      max-width: 800px;
-      padding: 120px 100px;
-  }
-
-  .LoginButton {
-      width: 50%;
-  }
-}
