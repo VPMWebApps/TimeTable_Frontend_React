@@ -1,0 +1,74 @@
+/* main css */
+
+.main-container {
+  display: inline-flex ;
+  flex-direction: column;
+  background-color: white;
+  justify-content: space-between;
+  min-height:200px ;
+  max-height: 100vh;
+  width: 170px;
+}
+.main-container img {
+ width: 25px;
+
+}
+.user img {
+   width: 60px;
+   margin-top: 25px;
+   border-radius: 50%;
+}
+
+/* top css */
+
+.user{
+ display: flex;
+ flex-direction: column;
+ justify-content: center;
+ align-items: center;
+ margin-right: 45px;
+}
+.top {
+ margin-left: 30px;
+}
+.dashboard, .lecture, .examtt {
+ margin-top: 25px;  
+ cursor: pointer;
+ padding:10px;  
+ border-radius: 50px; 
+ transition: background-color 0.3s ease; 
+ margin-right: 5px;
+}
+.dashboard {
+ margin-top: 30px;
+}
+
+/* bottom css */
+
+.bottom {
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ gap: 10px;
+ /* padding: 10px; */
+}
+.bottom-all {
+ cursor: pointer;
+ display: flex;
+ justify-content: center;  
+ align-self: start;
+ gap: 5px;
+ margin-top: 5px;
+ margin-left: 15px;  
+ padding:10px ;  
+ border-radius: 50px; 
+ transition: background-color 0.3s ease; 
+}
+
+.dashboard:hover,  .examtt:hover, .lecture:hover {
+ background-color: #b3b5f1;
+}
+.bottom-all:hover{
+  background-color: #b3b5f1;
+
+}

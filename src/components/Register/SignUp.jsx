@@ -1,5 +1,5 @@
 import React from 'react'
-import '../style/signUp.css'
+import '../Register/signUp.css'
 import { TextField } from '@mui/material'
 
 const SignUp = () => {
