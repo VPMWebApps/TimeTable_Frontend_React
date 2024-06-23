@@ -7,7 +7,7 @@
   justify-content: space-between;
   min-height:200px ;
   max-height: 100vh;
-  width: 170px;
+  width: 220px;
 }
 .main-container img {
  width: 25px;
@@ -34,10 +34,11 @@
 .dashboard, .lecture, .examtt {
  margin-top: 25px;  
  cursor: pointer;
- padding:10px;  
+ padding: 10px;  
  border-radius: 50px; 
  transition: background-color 0.3s ease; 
  margin-right: 5px;
+ width: 120px;
 }
 .dashboard {
  margin-top: 30px;
@@ -50,19 +51,22 @@
  flex-direction: column;
  align-items: center;
  gap: 10px;
+ width: 120px;
+ margin: 20px;
  /* padding: 10px; */
 }
 .bottom-all {
  cursor: pointer;
  display: flex;
- justify-content: center;  
- align-self: start;
+ justify-content: start;
+ align-items: center;
  gap: 5px;
  margin-top: 5px;
  margin-left: 15px;  
  padding:10px ;  
  border-radius: 50px; 
  transition: background-color 0.3s ease; 
+ width: 120px;
 }
 
 .dashboard:hover,  .examtt:hover, .lecture:hover {

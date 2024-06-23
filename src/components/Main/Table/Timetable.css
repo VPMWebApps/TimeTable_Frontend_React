@@ -1,0 +1,13 @@
+/* Timetable.css */
+
+.table {
+  margin: 20px;
+  padding: 10px;
+  width: calc(100% - 40px); 
+  background: #f9f9f9;
+  text-align: center;
+}
+
+ table{
+  width: 100%;
+} 

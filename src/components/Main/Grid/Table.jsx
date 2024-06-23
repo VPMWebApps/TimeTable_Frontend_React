@@ -1,5 +1,5 @@
 import React from 'react'
-import './Timetable.css'
+// import './Timetable.css'
 
 const Table = () => {
   return (

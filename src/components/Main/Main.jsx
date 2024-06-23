@@ -1,6 +1,7 @@
 import '../Main/Main.css'
 import React from 'react'
-import Table from '../Main/Grid/Table'
+// import Table from './Grid/Table'
+import Table from './Table/TimeTable'
 
 
 const Main = () => {
