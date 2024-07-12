@@ -1,74 +1,138 @@
-/* main css */
-
-.main-container {
-  display: inline-flex ;
-  flex-direction: column;
-  background-color: white;
-  justify-content: space-between;
-  min-height:200px ;
-  max-height: 100vh;
-  width: 170px;
+*{
+  text-decoration: none;
 }
-.main-container img {
- width: 25px;
-
-}
-.user img {
-   width: 60px;
-   margin-top: 25px;
-   border-radius: 50%;
+.container{
+  display: flex;
+  
 }
 
-/* top css */
+.sidebar{
+  background-color: rgba(188, 196, 199, 0.493);
+  height: 100vh;
+  transition:width 0.3s ease;
+}
+.sidebar.expand{
+  height: 100vh;
+  width: 180px;
+}
+.sidebar.collapse{
+  height: 100vh;
+  width: 50px;
+}
+.top_section{
+  display: flex;
+  align-items: center ;
+  padding: 20px 15px;
+}
 
+.user img{
+  width: 50px;
+  border-radius: 50%;
+}
 .user{
- display: flex;
- flex-direction: column;
- justify-content: center;
- align-items: center;
- margin-right: 45px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 15px;
+  margin-top: 40px;
+  margin-left: 40px;
+  
 }
-.top {
- margin-left: 30px;
+.menu_icon {
+  position: absolute;
+  top: 5px;
+  left: 1;
+  border-radius: 50px;
+  }
+
+.menu_icon img{
+  width: 30px;
+  cursor: pointer;  
 }
-.dashboard, .lecture, .examtt {
- margin-top: 25px;  
- cursor: pointer;
- padding:10px;  
- border-radius: 50px; 
- transition: background-color 0.3s ease; 
- margin-right: 5px;
+.menu_icon:hover{
+  padding: 3px;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  background-color: rgba(188, 196, 199, 0.493);
+  border-radius: calc(50%);
 }
-.dashboard {
- margin-top: 30px;
+.path{
+  display: flex;
+  align-items: center;
+  padding: 13px 15px;
+  gap: 10px;
+  transition: all 0.5s ease;
+  color: black;
+  cursor: pointer;
+}
+.path:hover,.logout:hover {
+background-color: cadetblue;
+transition: all 0.5;
+cursor: pointer;
+}
+/* .active{ 
+  background-color: cadetblue;
+
+} */
+ .icon{
+  display: flex;
+  align-items: center;
+
+  font-size: large;
+
+ }
+ .link_text{
+  font-size: 15px;
+
+ }
+ .collapse .user {
+  display: none;
 }
 
-/* bottom css */
 
-.bottom {
- display: flex;
- flex-direction: column;
- align-items: center;
- gap: 10px;
- /* padding: 10px; */
-}
-.bottom-all {
- cursor: pointer;
- display: flex;
- justify-content: center;  
- align-self: start;
- gap: 5px;
- margin-top: 5px;
- margin-left: 15px;  
- padding:10px ;  
- border-radius: 50px; 
- transition: background-color 0.3s ease; 
+/* Main content */
+
+.main { 
+  flex-grow: 1;
+  padding: 15px;
+  transition: margin-left 0.3s ease; 
 }
 
-.dashboard:hover,  .examtt:hover, .lecture:hover {
- background-color: #b3b5f1;
+.sidebar-expanded {
+  margin-left: 250px;
 }
-.bottom-all:hover{
-  background-color: #b3b5f1;
 
+.sidebar-collapsed { 
+  margin-left: 8px;
 }
+
+/* bottom */
+
+.logout{
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 178px;
+  padding: 10px;
+}
+
+.logout img{
+  width: 28px;
+}
+
+.logout-expand{
+  width: 178px;
+}
+.logout-collapse{
+  width: 50px;
+}
+
+
+/* Responsive */
+
+
