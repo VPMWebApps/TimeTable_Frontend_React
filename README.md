@@ -11,6 +11,6 @@ Currently, two official plugins are available:
 
 To get started developing right away:
 
-1.  install all project dependencies with npm install
+1.  install all project dependencies with "npm install"
  
-1.  start the development server with npm run dev
+1.  start the development server with "npm run dev"
