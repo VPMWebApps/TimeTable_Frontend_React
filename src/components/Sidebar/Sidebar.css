@@ -13,7 +13,7 @@
 }
 .sidebar.expand{
   height: 100vh;
-  width: 180px;
+  width: 230px;
 }
 .sidebar.collapse{
   height: 100vh;
@@ -36,8 +36,22 @@
   align-items: center;
   font-size: 15px;
   margin-top: 40px;
-  margin-left: 40px;
+  margin-left: 60px;
   
+}
+
+.user-logo-collapsed img{
+  display: flex;
+  width: 40px;
+  border-radius: 50%;
+  margin-left: 10px;
+  padding: 65px;
+}
+.logo-expand{
+  display: none;
+}
+.logo-collapse{
+  width: 40px;
 }
 .menu_icon {
   position: absolute;
@@ -62,7 +76,7 @@
   display: flex;
   align-items: center;
   padding: 13px 15px;
-  gap: 10px;
+  gap: 25px;
   transition: all 0.5s ease;
   color: black;
   cursor: pointer;
@@ -72,10 +86,11 @@ background-color: cadetblue;
 transition: all 0.5;
 cursor: pointer;
 }
-/* .active{ 
-  background-color: cadetblue;
+.active{ 
+  /* border-bottom:3px solid black; */
+  border-right:3px solid black;
 
-} */
+}
  .icon{
   display: flex;
   align-items: center;
@@ -116,8 +131,8 @@ cursor: pointer;
   display: flex;
   display: flex;
   align-items: center;
-  gap: 8px;
-  width: 178px;
+  gap: 25px;
+  width: 230px;
   padding: 10px;
 }
 
@@ -126,7 +141,7 @@ cursor: pointer;
 }
 
 .logout-expand{
-  width: 178px;
+  width: 230px;
 }
 .logout-collapse{
   width: 50px;

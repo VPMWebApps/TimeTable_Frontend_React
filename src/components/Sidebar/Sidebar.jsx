@@ -62,7 +62,9 @@
                     <h1 className=''>User</h1>
               </div>
 
-
+            </div>
+            <div className={`user-logo-collapsed ${open? "logo-expand" :"logo-collapse"}`}>
+               <img src={assets.user_icon} alt="user_img" /> 
             </div>
             {
               MenuItem.map((item,index)=>(
