@@ -1,68 +1,77 @@
-/* Timetable.css */
-.page{
-  height: 100%;
-}
-.table {
-  
-  height: 500px;
-  background-color: white;
-  width: 100%;
-  height: 85%;
-}
-table{
-  /* padding : px; */
-  height: 100%;
-  width: 100%;
-}
-
-table {
-  border-collapse: collapse;
-}
-
-th, td {
-  border: 1px solid black;
-  padding: 10px;
-  text-align: center;
-  width: calc(100% / 7);
-}
-
-.header {
-  background-color: #37394F; 
-  font-weight: bold;
-  color: white;
-}
-
-.time-slot {
-  background-color: #37394F; 
-  font-weight: bold;
-  color: white;
-}
-
-.break {
-  background-color: #37394F;
-  color: white;
-}
-
-td, th {
-  box-sizing: border-box;
-}
-
-/* title */
 .title{
-  height: 90px;
-  width: 100%;
-  background-color: rgba(188, 196, 199, 0.493);
-  margin: 1px;
-  margin-bottom: 10px;
-  font-size:larger;
-  padding: 30px;
-}
-
-
-@media screen and (max-width:650px) {
-  .page{
-    height: 100%;
-    
+    height: 90px;
+    width: 100%;
+    background-color: rgba(188, 196, 199, 0.493);
+    margin: 1px;
+    margin-bottom: 10px;
+    font-size:larger;
+    padding: 30px;
   }
-}
 
+  /* Base styles for the grid */
+.ag-theme-alpine {
+    height: 500px;
+    width: 100%;
+  }
+  
+  
+
+  /* Responsive styles */
+  @media (max-width: 768px) {
+    /* For tablets and mobile devices */
+    .ag-theme-alpine .ag-header-cell {
+      font-size: 10px; /* Smaller font size for header cells */
+      padding: 8px; /* Adjust padding for smaller screens */
+    }
+    .ag-theme-alpine .ag-cell {
+      font-size: 10px; /* Smaller font size for data cells */
+      padding: 6px; /* Less padding for smaller screens */
+    }
+    .ag-theme-alpine {
+      height: auto; /* Adjust height for smaller screens */
+    }
+    .ag-theme-alpine .time-cell{
+        font-size: 6px; /* Smaller font size for data cells */
+      padding: 6px;
+    }
+  }
+  
+  @media (max-width: 350px) {
+    /* For very small screens */
+    .ag-theme-alpine .ag-header-cell {
+      font-size: 10px; /* Even smaller font size for header cells */
+      padding: 6px; /* Adjust padding for very small screens */
+    }
+    .ag-theme-alpine .ag-cell {
+      font-size: 8px; /* Even smaller font size for data cells */
+      padding: 4px; /* Less padding for very small screens */
+    }
+    .ag-theme-alpine {
+      height: auto; /* Adjust height for very small screens */
+    }
+    .ag-theme-alpine .time-cell{
+      font-size: 6px; /* Smaller font size for data cells */
+      padding: 6px;   
+    }
+  }
+  
+  /* Ensure the grid adjusts to the container size */
+  .ag-theme-alpine .ag-header,
+  .ag-theme-alpine .ag-body-viewport {
+    box-sizing: border-box;
+  }
+  
+  /* General cell and row styles */
+  .ag-theme-alpine .ag-cell {
+    border-right: 1px solid #e0e0e0; /* Border for cell separation */
+  }
+  
+  .ag-theme-alpine .ag-row {
+    border-bottom: 1px solid #e0e0e0; /* Border for row separation */
+  }
+  
+  .time-cell {
+    background-color: #f7f7f7; /* Light grey background for time cells */
+    font-weight: bold;
+  }
+  

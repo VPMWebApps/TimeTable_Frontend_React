@@ -1,89 +1,74 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
+import { AgGridReact } from '@ag-grid-community/react';
+import '@ag-grid-community/styles/ag-grid.css';
+import '@ag-grid-community/styles/ag-theme-alpine.css';
+import { ClientSideRowModelModule } from '@ag-grid-community/client-side-row-model';
+import { ModuleRegistry } from '@ag-grid-community/core';
 import './Lectures.css';
 
-const TimeTable = () => {
-  return ( 
-  <div className='page'>
+ModuleRegistry.registerModules([ClientSideRowModelModule]);
+
+const getTimetableData = () => {
+  return [
+    { time: '9:00 - 10:00', Monday: 'Math', Tuesday: 'Physics', Wednesday: 'Chemistry', Thursday: 'Biology', Friday: 'History' },
+    { time: '10:00 - 11:00', Monday: 'English', Tuesday: 'Math', Wednesday: 'Physics', Thursday: 'Chemistry', Friday: 'Biology' },
+    { time: '11:00 - 12:00', Monday: 'History', Tuesday: 'English', Wednesday: 'Math', Thursday: 'Physics', Friday: 'Chemistry' },
+    { time: '12:00 - 1:00', Monday: 'Biology', Tuesday: 'History', Wednesday: 'English', Thursday: 'Math', Friday: 'Physics' },
+    { time: '1:00 - 2:00', Monday: 'Lunch', Tuesday: 'Lunch', Wednesday: 'Lunch', Thursday: 'Lunch', Friday: 'Lunch' },
+    { time: '2:00 - 3:00', Monday: 'Chemistry', Tuesday: 'Biology', Wednesday: 'History', Thursday: 'English', Friday: 'Math' }
+  ];
+};
+
+const Lectures = () => {
+  const containerStyle = useMemo(() => ({ width: '100%', height: '100%' }), []);
+  const gridStyle = useMemo(() => ({ height: '500px', width: '100%' }), []);
+  const [rowData] = useState(getTimetableData());
+  const [columnDefs] = useState([
+    { headerName: 'Time/Day', field: 'time', cellClass: 'time-cell' },
+    { headerName: 'Monday', field: 'Monday' },
+    { headerName: 'Tuesday', field: 'Tuesday' },
+    { headerName: 'Wednesday', field: 'Wednesday' },
+    { headerName: 'Thursday', field: 'Thursday' },
+    { headerName: 'Friday', field: 'Friday' },
+  ]);
+
+  const defaultColDef = useMemo(() => ({ flex: 1, resizable: true }), []);
+
+  const getRowHeight = (params) => {
+    return 73; // Set the height of each row to 25px (default height + 5px)
+  };
+
+  return (
+    <>
       <div className='title'>
         <p>TimeTable</p>
       </div>
-    <div className='table'>
-      <table border={1} width="80%" cellSpacing={0} cellPadding={10} align='center'>
-        <thead>
-          <tr align='center'>
-            <th className="header">Time/day</th>
-            <th className="header">Mon</th>
-            <th className="header">Tue</th>
-            <th className="header">Wed</th>
-            <th className="header">Thu</th>
-            <th className="header">Fri</th>
-            <th className="header">Sat</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr align='center'>
-            <td className="time-slot">9:10-10:10</td>
-            <td>COst</td>
-            <td>JAVA</td>
-            <td>Embedd</td>
-            <td>Maths</td>
-            <td>Python</td>
-            <td>C++</td>
-          </tr>
-          <tr align='center'>
-            <td className="time-slot">10:10-11:10</td>
-            <td>COst</td>
-            <td>JAVA</td>
-            <td>Embedd</td>
-            <td>Maths</td>
-            <td>Python</td>
-            <td>C++</td>
-          </tr>
-          <tr align='center'>
-            <td className="time-slot">11:10-12:10</td>
-            <td>COst</td>
-            <td>JAVA</td>
-            <td>Embedd</td>
-            <td>Maths</td>
-            <td>Python</td>
-            <td>C++</td>
-          </tr>
-          <tr align='center'>
-            <td className="time-slot">12:10-1:10</td>
-            <td colSpan={6} align='center' className="break">Break</td>
-          </tr>
-          <tr align='center'>
-            <td className="time-slot">1:10-2:10</td>
-            <td>COst</td>
-            <td>JAVA</td>
-            <td>Embedd</td>
-            <td>Maths</td>
-            <td>Python</td>
-            <td>C++</td>
-          </tr>
-          <tr align='center'>
-            <td className="time-slot">2:10-3:10</td>
-            <td>COst</td>
-            <td>JAVA</td>
-            <td>Embedd</td>
-            <td>Maths</td>
-            <td>Python</td>
-            <td>C++</td>
-          </tr>
-          <tr align='center'>
-            <td className="time-slot">3:10-4:10</td>
-            <td>COst</td>
-            <td>JAVA</td>
-            <td>Embedd</td>
-            <td>Maths</td>
-            <td>Python</td>
-            <td>C++</td>
-          </tr>
-        </tbody>
-      </table> 
-    </div>
-  </div>
+      <div style={containerStyle}>
+        <style>
+          {`
+            .ag-theme-alpine .ag-cell {
+              border-right: 1px solid #e0e0e0; /* Adjust the color and width as needed */
+            }
+            .ag-theme-alpine .ag-row {
+              border-bottom: 1px solid #e0e0e0; /* Adjust the color and width as needed */
+            }
+            .time-cell {
+              background-color: #f7f7f7; /* Light grey background for time cells */
+              font-weight: bold;
+            }
+          `}
+        </style>
+        <div style={gridStyle} className="ag-theme-alpine">
+          <AgGridReact
+            rowData={rowData}
+            columnDefs={columnDefs}
+            defaultColDef={defaultColDef}
+            getRowHeight={getRowHeight}
+          />
+        </div>
+      </div>
+    </>
   );
-}
+};
 
-export default TimeTable;
+export default Lectures;

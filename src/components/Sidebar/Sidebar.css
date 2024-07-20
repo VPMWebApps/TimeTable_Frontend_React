@@ -5,7 +5,6 @@
   display: flex;
   
 }
-
 .sidebar{
   background-color: rgba(188, 196, 199, 0.493);
   height: 100vh;
@@ -24,7 +23,6 @@
   align-items: center ;
   padding: 20px 15px;
 }
-
 .user img{
   width: 50px;
   border-radius: 50%;
