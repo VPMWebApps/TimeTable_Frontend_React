@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../Lecture/Lecture.css"; // Add the stylesheet
+import axios from "axios";
 
 const days = [
   "Time",
@@ -11,12 +12,12 @@ const days = [
   "Saturday",
 ];
 const times = [
-  "9:00 - 10:00",
-  "10:00 - 11:00",
-  "11:00 - 12:00",
-  "12:00 - 1:00",
-  "2:00 - 3:00",
-  "3:00 - 4:00",
+  "9:00 PM",
+  "10:00 PM",
+  "11:00 PM",
+  "12:00 PM",
+  "2:00 PM",
+  "3:00 PM",
 ];
 
 // Mock Data
@@ -53,8 +54,24 @@ const Lecture = () => {
   useEffect(() => {
     // Simulate fetching data
     setTimeout(() => {
-      setData(mockLectureData); // Replace with mock data
-      setLoading(false);
+      const fetchData = async () => {
+        try {
+          const response = await axios.get('http://localhost:8000/api/v1/college/timeslot', 
+            {
+              withCredentials: true,
+            }
+          ); // Your TimeSlot API endpoint
+          // console.log(response.data.slot);
+          
+          setData(response.data.slot);
+          setLoading(false);
+        } catch (err) {
+          console.error('Error fetching data');
+          setLoading(false);
+        }
+      };
+      
+      fetchData();
     }, 1000); // Simulate 1 second delay
   }, []);
 
@@ -62,10 +79,17 @@ const Lecture = () => {
     setExpanded(expanded === key ? null : key); // Toggle expansion
   };
 
+
+  
+
   const renderAccordion = (time, day, rowIdx, colIdx) => {
+    
+
     const lecture = data.find(
-      (lecture) => lecture.time === time && lecture.day === day
+      (dt) => dt.startTime === time && dt.day === day
     );
+    console.log("lecture >>>",lecture)
+    
     const key = `${rowIdx}-${colIdx}`;
 
     return lecture ? (
@@ -76,14 +100,14 @@ const Lecture = () => {
       >
         {/* Display the subject name */}
         <div className="subject-name">
-          <strong>{lecture.subject}</strong>
+          <strong>{lecture.lecture.subject.name}</strong>
         </div>
 
         {/* Conditionally display professor and room number when expanded */}
         {expanded === key && (
           <div className="lecture-details">
-            <div>{`Professor: ${lecture.professor.name}`}</div>
-            <div>{`Room: ${lecture.room}`}</div>
+            <div>{`Professor: ${lecture.lecture.professor.name}`}</div>
+            <div>{`Room: ${lecture.lecture.classroom.room_no}`}</div>
           </div>
         )}
       </div>

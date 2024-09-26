@@ -1,5 +1,5 @@
 import './App.css'
-import DashboardLayoutBasic from './Components/Layout/DashboardLayoutBasic'
+import DashboardLayoutBasic from './components/Layout/DashboardLayoutBasic'
 
 
 function App() {
@@ -7,7 +7,7 @@ function App() {
 
   return (
     <>
-      <DashboardLayoutBasic/>
+      <DashboardLayoutBasic />
     </>
   )
 }
