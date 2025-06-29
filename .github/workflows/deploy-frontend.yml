@@ -1,0 +1,15 @@
+name: Deploy Frontend to Render
+
+on:
+  push:
+    branches:
+      - Nirav  
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Render Deployment
+        run: |
+          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
