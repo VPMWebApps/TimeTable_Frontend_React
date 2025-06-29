@@ -1,15 +1,35 @@
-name: Deploy Frontend to Render
+name: Build & Deploy Frontend to Render
 
 on:
   push:
     branches:
-      - Nirav  
+      - Nirav  # Replace with your frontend branch if different
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Trigger Render Deployment
+      # Step 1: Checkout the code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Setup Node.js with caching
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      # Step 3: Install dependencies using npm ci (faster + cleaner)
+      - name: Install dependencies
+        run: npm ci
+
+      # Step 4: Build the frontend project
+      - name: Build project
+        run: npm run build
+
+      # Step 5: Trigger Render deployment via deploy hook
+      - name: Trigger deployment on Render
         run: |
-          curl -X POST ${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK}}
+          curl -X POST ${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK }}
