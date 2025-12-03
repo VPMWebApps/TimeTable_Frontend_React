@@ -1,225 +1,276 @@
-import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
-import moment from 'moment';
-import { userDataContext } from '../../../Context/UserContext';
-import { API_URL } from '../../../Api/server';
-import { toast } from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState, useRef } from "react";
+import { API_URL } from "../../../Api/server.js";
 
-const Admin = () => {
-  const { user, setUser, setRole } = useContext(userDataContext);
-  const [timetable, setTimetable] = useState([]);
+export default function Admin() {
+
+  const [streams, setStreams] = useState([]);
+  const [divisions, setDivisions] = useState([]);
+  const [selectedStream, setSelectedStream] = useState('');
+  const [selectedDivision, setSelectedDivision] = useState('');
+  const [timetable, setTimetable] = useState([]); // array of timeslot/lecture objects
+  const [holidays, setHolidays] = useState([]); // array of dates 'YYYY-MM-DD' or day names
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [selectedDate, setSelectedDate] = useState(() => {
-    return moment().format('YYYY-MM-DD');
-  });
-  const navigate = useNavigate();
+  const [error, setError] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editing, setEditing] = useState(null); // lecture being edited
+  const dragDataRef = useRef(null);
 
-  // Format for API as DD/MM/YYYY
-  const formattedDate = moment(selectedDate, 'YYYY-MM-DD').format('DD/MM/YYYY');
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+  useEffect(() => { fetchStreams(); fetchDivisions() }, []);
 
   useEffect(() => {
-    fetchTimetable(formattedDate);
-  }, [selectedDate]);
-
-  const fetchTimetable = async (date) => {
-    setLoading(true);
-    setError('');
-    try {
-      const response = await axios.get(`${API_URL}/college/schedule/week`, {
-        params: { date: date, stream: user?.stream?._id },
-        withCredentials: true,
-      });
-      setTimetable(response.data.timetable);
-    } catch (err) {
-      if (err.response?.status === 401) {
-        handleInvalidToken();
-      } else {
-        setError(
-          err.response?.data?.message ||
-          'Unable to fetch timetable. Please try again later.'
-        );
-        setTimetable([]);
-      }
-    } finally {
-      setLoading(false);
+    if (divisions.length === 0) {
+      setSelectedDivision('none');  // mark as no-division stream
     }
-  };
+  }, [divisions]);
 
-  const handleInvalidToken = () => {
-    toast.error('Session expired. Please log in again.');
-    localStorage.removeItem('token');
-    setUser(null);
-    setRole(null);
-    navigate('/');
-  };
 
-  const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  useEffect(() => { if (selectedStream && selectedDivision !== '') fetchTimetable(); }, [selectedStream, selectedDivision]);
 
-  const prepareData = () => {
-    const timeSlots = [];
-    for (let i = 7; i <= 18; i++) {
-      const time = moment({ hour: i }).format('hh:00 A');
-      timeSlots.push({
-        time,
-        monday: null,
-        tuesday: null,
-        wednesday: null,
-        thursday: null,
-        friday: null,
-        saturday: null,
-        sunday: null
-      });
-    }
+  function getAuthHeaders(){
+    const token = localStorage.getItem('token');
+    return token ? { Authorization: `Bearer ${token}`, 'Content-Type':'application/json' } : { 'Content-Type':'application/json' };
+  }
 
-    if (!Array.isArray(timetable)) {
-      console.error("Timetable is not an array:", timetable);
-      return timeSlots;
-    }
+  async function fetchStreams(){
+    try{
+      const res = await fetch(`${API_URL}/college/stream` , { headers: getAuthHeaders() });
+      if(!res.ok) throw new Error('Failed to load streams');
+      const data = await res.json();
+      setStreams(Array.isArray(data) ? data : []);
 
-    timetable.forEach((daySchedule) => {
-      const dayIndex = daysOfWeek.indexOf(daySchedule.dayOfWeek);
-      if (daySchedule.holiday) {
-        timeSlots.forEach(slot => {
-          slot[daysOfWeek[dayIndex].toLowerCase()] = {
-            text: daySchedule.holiday,
-            isHoliday: true
-          };
-        });
+    }catch(e){ console.error(e); setError(e.message); }
+  }
+
+  async function fetchDivisions(){
+    try{
+      const res = await fetch(`${API_URL}/college/division`, { headers: getAuthHeaders() });
+      if (!res.ok) {
+        console.warn("No divisions found or endpoint returned non-200");
+        setDivisions([]);
         return;
       }
+      const data = await res.json();
+      setDivisions(Array.isArray(data) ? data : []);
+    }catch(e){ console.error(e); setError(e.message); }
+  }
 
-      daySchedule.shifts.forEach((shift) => {
-        shift.timeSlot.forEach((slot) => {
-          if (!slot.startTime || !daySchedule.dayOfWeek || slot.day !== daySchedule.dayOfWeek) {
-            return;
-          }
+  // Fetch timetable + holidays for selected stream+division
+  async function fetchTimetable(){
+    setLoading(true); setError(null);
+    try{
+      const qs = selectedDivision === 'none'
+      ? `?stream=${selectedStream}`
+      : `?stream=${selectedStream}&division=${selectedDivision}`;
+      const res = await fetch(`${API_URL}/college/calendar${qs}`, { headers: getAuthHeaders() });
+      if(!res.ok) throw new Error('Failed to load timetable');
+      const data = await res.json();
 
-          const timeSlotFormatted = moment(slot.startTime, 'hh:mm A').format('hh:00 A');
-          const dayColumn = daysOfWeek[dayIndex];
+      const slots = data.timeslots || data.schedule || data.calendar || data.timetableSchedule || [];
+      setTimetable(slots);
 
-          if (dayColumn) {
-            const row = timeSlots.find(item => item.time === timeSlotFormatted);
-            if (row) {
-              row[dayColumn.toLowerCase()] = renderLecture(slot.lecture) || 'N/A';
-            }
-          }
-        });
-      });
+      const h = (data.holidays || data.timetableHolidays || []).map(h=> h.date || h.day || h);
+      setHolidays(h);
+    }catch(e){ console.error(e); setError(e.message); }
+    finally{ setLoading(false); }
+  }
+
+  // Helper to group slots by day and slotIndex
+  function buildGrid(){
+    const grid = {};
+    days.forEach(d=> grid[d]=[]);
+    timetable.forEach(t=>{
+      const day = t.day || t.weekday || t.dayName;
+      if(!grid[day]) grid[day]=[];
+      grid[day].push(t);
     });
-
-    return timeSlots;
-  };
-
-  const renderLecture = (lecture) => {
-    return (
-      <div>
-        <b>
-          <h3>{lecture?.subject?.name}</h3>
-        </b>
-        <h4>{lecture?.professor?.name}</h4>
-        <h4>{lecture?.room?.room_no}</h4>
-      </div>
-    );
+    days.forEach(d=>{
+      grid[d].sort((a,b)=>{
+        const ta = a.startTime || a.slotOrder || 0;
+        const tb = b.startTime || b.slotOrder || 0;
+        return (''+ta).localeCompare(''+tb, undefined, {numeric:true});
+      })
+    })
+    return grid;
   }
 
-  if (!user?.stream) {
-    console.log("No stream associated with user:", user);
-
-    // Replacing Antd Alert with a custom styled div
-    return (
-      <div className='p-5'>
-        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded">
-          No stream associated with your account. Please contact admin.
-        </div>
-      </div>
-    );
+  function openModal(slot){
+    setEditing(slot ? { ...slot } : { day: '', startTime:'', endTime:'', subjectName:'', professorName:'', roomName:'', lectureType:'theory' });
+    setModalOpen(true);
   }
+
+  async function saveLecture(){
+    try{
+      const payload = { ...editing };
+
+      let res;
+      if(editing._id){
+        res = await fetch(`${API_URL}/college/lectures/${editing._id}`, {
+          method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(payload)
+        });
+      }else{
+        res = await fetch(`${API_URL}/college/lectures`, {
+          method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(payload)
+        });
+      }
+      if(!res.ok){ const txt = await res.text(); throw new Error(txt||'Failed to save'); }
+      await fetchTimetable();
+      setModalOpen(false);
+    }catch(e){ console.error(e); setError(e.message); }
+  }
+
+  async function deleteLecture(id){
+    if(!confirm('Delete this lecture?')) return;
+    try{
+      const res = await fetch(`${API_URL}/college/lectures/${id}`, { method:'DELETE', headers: getAuthHeaders() });
+      if(!res.ok) throw new Error('Delete failed');
+      await fetchTimetable();
+    }catch(e){ console.error(e); setError(e.message); }
+  }
+
+  // Drag handlers
+  function onDragStart(e, lecture){
+    dragDataRef.current = lecture;
+    e.dataTransfer.effectAllowed = 'move';
+  }
+  function onDragOver(e){ e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
+  async function onDrop(e, day){
+    e.preventDefault();
+    const dragged = dragDataRef.current;
+    if(!dragged) return;
+    const updated = { ...dragged, day };
+    try{
+      const res = await fetch(`${API_URL}/college/lectures/${dragged._id}`, {
+        method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(updated)
+      });
+      if(!res.ok){ const t = await res.text(); throw new Error(t||'Move failed'); }
+      await fetchTimetable();
+      dragDataRef.current = null;
+    }catch(e){ console.error(e); setError(e.message); }
+  }
+
+  function isHoliday(day){
+    return holidays.includes(day) || holidays.some(h=> (''+h).includes(day));
+  }
+
+  const grid = buildGrid();
 
   return (
-    <div className='p-5'>
-      <div className='mb-5 flex items-center justify-between'>
-        <h2 className='text-2xl'>Weekly Timetable</h2>
-        <div className='flex items-center gap-3'>
-          <h3 className='text-lg font-medium'>Date :</h3>
-          <input
-            type="date"
-            className="border px-2 py-1 rounded"
-            value={selectedDate}
-            onChange={e => setSelectedDate(e.target.value)}
-            max={moment().add(1, 'year').format('YYYY-MM-DD')}
-            min={moment().subtract(10, 'years').format('YYYY-MM-DD')}
-          />
+    <div className="p-6 space-y-4">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">Edit Timetable</h1>
+        <div className="flex gap-3">
+          <select value={selectedStream} onChange={e=>setSelectedStream(e.target.value)} className="border p-2 rounded">
+            <option value="">Select Stream</option>
+            {streams.map(s=> <option key={s._id||s.id} value={s._id||s.id}>{s.name || s.title}</option>)}
+          </select>
+
+          <select value={selectedDivision} onChange={e=>setSelectedDivision(e.target.value)} className="border p-2 rounded">
+            <option value="">Select Division</option>
+            {divisions.map(d=> <option key={d._id||d.id} value={d._id||d.id}>{d.division || d.name}</option>)}
+          </select>
+
+          <button className="px-4 py-2 bg-blue-600 text-white rounded" onClick={()=>openModal(null)}>+ Add Lecture</button>
         </div>
       </div>
 
-      {loading ? (
-        <div className="flex justify-center items-center py-10">
-          <span>Loading timetable...</span>
-        </div>
-      ) : error ? (
-        <div className="my-4 p-4 bg-red-100 text-red-700 rounded border border-red-400">
-          {error}
-        </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full border border-gray-300 text-center">
-            <thead>
-              <tr>
-                <th className="border px-2 py-1 bg-gray-100">Time</th>
-                {daysOfWeek.map(day => (
-                  <th key={day} className="border px-2 py-1 bg-gray-100">{day}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {prepareData().map((row, rowIndex, arr) => (
-                <tr key={row.time}>
-                  <td className="border px-2 py-1 font-semibold">{row.time}</td>
-                  {daysOfWeek.map((day, dayIdx) => {
-                    // Check if this day is a holiday for the whole column
-                    const isHolidayColumn =
-                      arr.every(r => r[day.toLowerCase()]?.isHoliday) &&
-                      rowIndex === 0; // Only render once at the top row
+      {loading && <div>Loading...</div>}
+      {error && <div className="text-red-600">{error}</div>}
 
-                    if (isHolidayColumn) {
-                      const holidayText = arr[0][day.toLowerCase()]?.text || "Holiday";
-                      return (
-                        <td
-                          key={day}
-                          rowSpan={arr.length}
-                          className="border px-2 py-1 bg-red-100 text-red-700 font-bold text-center align-middle rounded"
-                          style={{ verticalAlign: "middle" }}
-                        >
-                          {holidayText}
-                        </td>
-                      );
-                    }
+      <div className="overflow-auto border rounded">
+        <div className="grid" style={{ gridTemplateColumns: `150px repeat(${days.length}, minmax(180px, 1fr))` }}>
+          <div className="p-2 bg-gray-50 font-semibold">Time / Slot</div>
+          {days.map(d=> (
+            <div key={d} className={`p-2 text-center font-semibold ${isHoliday(d) ? 'bg-red-100' : ''}`}>{d}{isHoliday(d) && <div className="text-xs text-red-600">Holiday</div>}</div>
+          ))}
 
-                    // If this column is a holiday but not the first row, skip rendering (merged by rowSpan)
-                    if (
-                      arr.every(r => r[day.toLowerCase()]?.isHoliday) &&
-                      rowIndex > 0
-                    ) {
-                      return null;
-                    }
-
-                    const cell = row[day.toLowerCase()];
+          {(() => {
+            const maxRows = Math.max(...days.map(d=> grid[d].length));
+            const rows = [];
+            for(let r=0;r<Math.max(maxRows, 6); r++){
+              rows.push(
+                <React.Fragment key={r}>
+                  <div className="p-2 border-t">Slot {r+1}</div>
+                  {days.map(d=>{
+                    const slot = grid[d][r];
                     return (
-                      <td key={day} className="border px-2 py-1 align-top">
-                        {cell ? cell : 'N/A'}
-                      </td>
-                    );
+                      <div key={d+"-"+r} className="p-2 border-t min-h-[72px]" onDragOver={onDragOver} onDrop={(e)=>onDrop(e,d)}>
+                        {slot ? (
+                          <div draggable onDragStart={(e)=>onDragStart(e, slot)} className="p-2 bg-white rounded shadow-sm h-full flex flex-col justify-between">
+                            <div>
+                              <div className="font-medium">{slot.subjectName || slot.subject || slot.title}</div>
+                              <div className="text-xs text-gray-500">{slot.professorName || slot.professor || slot.faculty}</div>
+                              <div className="text-xs text-gray-500">{slot.roomName || slot.room}</div>
+                            </div>
+                            <div className="flex gap-2 mt-2">
+                              <button className="text-sm text-blue-600" onClick={()=> openModal(slot)}>Edit</button>
+                              <button className="text-sm text-red-600" onClick={()=> deleteLecture(slot._id)}>Delete</button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="h-full flex items-center justify-center text-sm text-gray-400">Empty</div>
+                        )}
+                      </div>
+                    )
                   })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                </React.Fragment>
+              )
+            }
+            return rows;
+          })()}
+        </div>
+      </div>
+
+      {modalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded shadow-lg w-[720px] max-w-full">
+            <h3 className="text-lg font-semibold mb-4">{editing && editing._id ? 'Edit Lecture' : 'Add Lecture'}</h3>
+
+            <div className="grid grid-cols-2 gap-3">
+              <label className="flex flex-col"><span className="text-xs text-gray-600">Day</span>
+                <select value={editing.day} onChange={e=>setEditing({...editing, day:e.target.value})} className="border p-2 rounded">
+                  <option value="">Select day</option>
+                  {days.map(d=> <option key={d} value={d}>{d}</option>)}
+                </select>
+              </label>
+
+              <label className="flex flex-col"><span className="text-xs text-gray-600">Start Time</span>
+                <input value={editing.startTime || ''} onChange={e=>setEditing({...editing, startTime:e.target.value})} placeholder="09:00" className="border p-2 rounded" />
+              </label>
+
+              <label className="flex flex-col"><span className="text-xs text-gray-600">End Time</span>
+                <input value={editing.endTime || ''} onChange={e=>setEditing({...editing, endTime:e.target.value})} placeholder="10:00" className="border p-2 rounded" />
+              </label>
+
+              <label className="flex flex-col"><span className="text-xs text-gray-600">Lecture Type</span>
+                <select value={editing.lectureType || 'theory'} onChange={e=>setEditing({...editing, lectureType:e.target.value})} className="border p-2 rounded">
+                  <option value="theory">Theory</option>
+                  <option value="practical">Practical</option>
+                  <option value="guest">Guest Lecture</option>
+                </select>
+              </label>
+
+              <label className="flex flex-col col-span-2"><span className="text-xs text-gray-600">Subject</span>
+                <input value={editing.subjectName || editing.subject || ''} onChange={e=>setEditing({...editing, subjectName:e.target.value})} className="border p-2 rounded" />
+              </label>
+
+              <label className="flex flex-col"><span className="text-xs text-gray-600">Professor</span>
+                <input value={editing.professorName || editing.professor || ''} onChange={e=>setEditing({...editing, professorName:e.target.value})} className="border p-2 rounded" />
+              </label>
+
+              <label className="flex flex-col"><span className="text-xs text-gray-600">Room</span>
+                <input value={editing.roomName || editing.room || ''} onChange={e=>setEditing({...editing, roomName:e.target.value})} className="border p-2 rounded" />
+              </label>
+            </div>
+
+            <div className="mt-4 flex justify-end gap-3">
+              <button className="px-4 py-2 rounded border" onClick={()=>{ setModalOpen(false); setEditing(null); }}>Cancel</button>
+              <button className="px-4 py-2 bg-blue-600 text-white rounded" onClick={saveLecture}>Save</button>
+            </div>
+          </div>
         </div>
       )}
     </div>
-  );
-};
-
-export default Admin;
+  )
+}

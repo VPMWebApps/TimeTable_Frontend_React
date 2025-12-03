@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
-import Loader from '../../Components/Loader/Loader';
 import { userDataContext } from '../../Context/UserContext';
+import StudentAttendancePage from '../../Components/Home/StudentAttendance';
 
 const Home = () => {
 
@@ -9,17 +9,9 @@ const Home = () => {
 
   return (
     <div className=''>
-      {loading ? <Loader /> : "Home"}
-      {user && <div>
-          <p>{user?._id}</p>
-          <p>{user?.name}</p>
-          <p>{user?.role}</p>
-          <p>{user?.batch}</p>
-          <p>{user?.year}</p>
-        </div>
-      }
+      <StudentAttendancePage currentUser={user} />
     </div>
   )
 }
 
-export default Home
+export default Home;
